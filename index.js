@@ -84,7 +84,6 @@ class Wand {
                 this.subscribe_button.bind(this),
                 async.apply(this.reset_position.bind(this))
             ], function (err, result) {
-                console.log("hello!!");
                 resolve(true);
             });
         });
@@ -121,7 +120,6 @@ class Wand {
             gr.recognise(this.positions)
             .then((data) =>{
                 this.spells.next(data);
-                console.log(data);
             });
             this.positions = [];
         }
@@ -173,6 +171,11 @@ class Wand {
         this.quaternionsResetCharacteristic.write(reset, true);
     }
 }
+
+String.prototype.replaceAll = function(search, replacement) {
+    var target = this;
+    return target.replace(new RegExp(search, 'g'), replacement);
+};
 
 function compareUUID(val1, val2) {
     val1 = val1.replaceAll("-", "").toLowerCase();
