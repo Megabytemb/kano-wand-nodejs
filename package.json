@@ -1,0 +1,31 @@
+{
+  "name": "kano-wand",
+  "version": "1.0.0",
+  "description": "NodeJS wrapper for interfacing with the Kano Harry Potter BLE wand",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/megabytemb/kano-wand-nodejs.git"
+  },
+  "keywords": [
+    "kano",
+    "wand"
+  ],
+  "author": "Michael Benz",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/megabytemb/kano-wand-nodejs/issues"
+  },
+  "homepage": "https://github.com/megabytemb/kano-wand-nodejs#readme",
+  "dependencies": {
+    "@tensorflow/tfjs": "^0.14.1",
+    "@tensorflow/tfjs-node": "^0.2.1",
+    "async": "^2.6.1",
+    "fit-curve": "^0.1.6",
+    "rxjs": "^6.3.3",
+    "string-just": "0.0.2"
+  }
+}
