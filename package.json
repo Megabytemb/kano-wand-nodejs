@@ -1,6 +1,6 @@
 {
   "name": "kano-wand",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "NodeJS wrapper for interfacing with the Kano Harry Potter BLE wand",
   "main": "index.js",
   "scripts": {
