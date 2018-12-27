@@ -29,7 +29,7 @@ if (!Array.prototype.flat) {
         this.resolution = 27;
     }
     loadModel(load) {
-        this.loaded = tf.loadModel('file://./model/spelling.json');
+        this.loaded = tf.loadModel('file://' + require.resolve('kano-wand/model/spelling.json'));
     }
     predict(spellToRecognise) {
         const spellSize = 80;
