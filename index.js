@@ -4,7 +4,12 @@ var async = require("async");
 var gestureSpells = require("./gesture-spells");
 const { Observable, Subject, ReplaySubject, from, of, range } = require('rxjs');
 const { map, filter, switchMap } = require('rxjs/operators');
+const Conv = require('./conversion');
 
+const width = 800;
+const height = 600
+
+const conv = new Conv(width, height);
 var gr = new gestureSpells()
 
 
@@ -15,12 +20,24 @@ class Wand {
         this.vibrateCharacteristic = null;
         this.quaternionsCharacteristic = null;
         this.quaternionsResetCharacteristic = null;
-        this.positions = [];
+        this.currentSpell = [];
         this.buttonPressed = false;
         this.timeUp = new Date();
         this.timeDown = new Date();
         this.resetTimeout = 0.2 // determins a quick press for wand reset (milliseconds)
         this.spells = new Subject();
+        this.positions = new Subject();
+    }
+
+    static uInt8ToUInt16(byteA, byteB) {
+        const number = (((byteB & 0xff) << 8) | byteA);
+        const sign = byteB & (1 << 7);
+
+        if (sign) {
+            return 0xFFFF0000 | number;
+        }
+
+        return number;
     }
 
     processCharacteristic(characteristic) {
@@ -84,6 +101,7 @@ class Wand {
                 this.subscribe_button.bind(this),
                 async.apply(this.reset_position.bind(this))
             ], function (err, result) {
+                console.log("hello!!");
                 resolve(true);
             });
         });
@@ -116,15 +134,29 @@ class Wand {
             this.spell = null;
         } else if (seconds < this.resetTimeout) { // not pressed
             this.reset_position();
-        } else if (this.positions.length > 0) { // not pressed
-            gr.recognise(this.positions)
+        } else if (this.currentSpell.length > 5) { // not pressed
+            this.currentSpell = this.currentSpell.splice(5);
+            let flippedPositions = [];
+
+            this.currentSpell.forEach((entry) => {
+                flippedPositions.push(Wand.flipCord(entry));
+            })
+
+            const positions = this.currentSpell;
+            gr.recognise(flippedPositions)
             .then((data) =>{
+                data.positions = flippedPositions;
                 this.spells.next(data);
             });
-            this.positions = [];
+            this.currentSpell = [];
         }
+    }
 
-
+    static flipCord(cords) {
+        const x = cords[0]
+        const y = cords [1]
+        const iy = height - (y);
+        return [x, iy];
     }
 
     subscribe_position(result, callback) {
@@ -134,11 +166,12 @@ class Wand {
     }
 
     onMotionUpdate(data, isNotification) {
-        let y = data.readInt16LE(0)
-        let x = -1 * data.readInt16LE(2)
-        let w = -1 * data.readInt16LE(4)
-        let z = data.readInt16LE(6)
+        let y = data.readInt16LE(0);
+        let x = data.readInt16LE(2);
+        let w = data.readInt16LE(4);
+        let z = data.readInt16LE(6);
 
+        const pos = conv.position([x, y, z, w]);
     
         let pitch = `Pitch: ${just.ljust(z.toString(), 16, " ")}`;
         let roll = `Roll: ${just.ljust(w.toString(), 16, " ")}`;
@@ -146,22 +179,9 @@ class Wand {
         // console.log(`${pitch}${roll}(x, y): (${x.toString()}, ${y.toString()})`)
         // console.log(this.getXY(x, y))
         if (this.buttonPressed) {
-            this.positions.push(this.getXY(x, y));
+            this.currentSpell.push([pos.x, pos.y]);
+            this.positions.next([pos.x, pos.y]);
         }
-    }
-
-    getXY(x, y) {
-        const width = 800
-        const height = 600
-        // Height needs to be inversed for some reason - no idead why
-        return [
-            this.scale(x, -500, 500, 0, width),
-            this.scale(y, 500, -500, 0, height),
-        ]
-    }
-
-    scale(num, in_min, in_max, out_min, out_max) {
-        return (num - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
     }
 
     reset_position() {
@@ -171,11 +191,6 @@ class Wand {
         this.quaternionsResetCharacteristic.write(reset, true);
     }
 }
-
-String.prototype.replaceAll = function(search, replacement) {
-    var target = this;
-    return target.replace(new RegExp(search, 'g'), replacement);
-};
 
 function compareUUID(val1, val2) {
     val1 = val1.replaceAll("-", "").toLowerCase();
