@@ -70,6 +70,12 @@ class Wand {
                 console.log("found keep alive");
                 this.keepAliveCharacteristic = characteristic;
             }
+
+            if (compareUUID(characteristic.uuid, kano.IO.LED_CHAR))
+            {
+                console.log("found led");
+                this.ledCharacteristic = characteristic;
+            }
         }
     }
 
@@ -84,6 +90,21 @@ class Wand {
       alive.writeUInt8(1,0);
       this.keepAliveCharacteristic.write(alive, true);
     }
+
+    setLed(state, color = "#000000") {
+      console.log("Set LED: ", color);
+      var color = parseInt(color.replace("#","0x"),16);
+      const message = Buffer.alloc(3);
+      message.writeUInt8([state ? 1 : 0], 0);
+      const r = (color >> 16) & 255;
+      const g = (color >> 8) & 255;
+      const b = color & 255;
+      const rgb565 = (((r & 248) << 8) + ((g & 252) << 3) + ((b & 248) >> 3));
+      message.writeUInt8([rgb565 >> 8], 1);
+      message.writeUInt8([rgb565 & 0xff], 2);
+      this.ledCharacteristic.write(message, true);
+    }
+
     init(peripheral) {
         console.log("init");
         var serviceUUIDs = [
