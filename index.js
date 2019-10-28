@@ -265,7 +265,7 @@ class Wand {
         if (distanceCenterY > 50) this.whileFlick.next("downMove");
         if (distanceCenterY < -50) this.whileFlick.next("upMove");
       }
-      const distance = Wand.distance(this.lastPoint.x, p.x, this.lastPoint.y, p.y) / .4;
+      const distance = Conv.distance(this.lastPoint.x, p.x, this.lastPoint.y, p.y) / .4;
 
       this.centerPoints = p;
       this.lastPoint = p;
@@ -326,10 +326,6 @@ class Wand {
       this.onFlick.next(this.direction);
       this.wandGesture = []
       this.vertical = null
-    }
-
-    static distance(x1, x2, y1, y2) {
-      return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
     }
 
     subscribe_battery(callback) {
