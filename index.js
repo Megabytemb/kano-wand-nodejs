@@ -32,6 +32,7 @@ class Wand {
         this.spells = new Subject();
         this.positions = new Subject();
         this.battery = new Subject();
+        this.button = new Subject();
     }
 
     static uInt8ToUInt16(byteA, byteB) {
@@ -124,9 +125,11 @@ class Wand {
         return new Promise((resolve, reject) => {
             async.waterfall([
                 function(callback) {
+                    console.log("Discovering services...");
                     peripheral.discoverServices(serviceUUIDs, callback);
                 },
                 function(services, callback) {
+                    console.log("Found", services.length, "services");
                     var tasks = []
                     services.forEach(function(service) {
                         tasks.push(function(callback) {
@@ -180,6 +183,7 @@ class Wand {
         } else if (seconds < this.resetTimeout) { // not pressed
             this.reset_position();
             this.keepAlive();
+            this.button.next('reset');
         } else if (this.currentSpell.length > 5) { // not pressed
             this.currentSpell = this.currentSpell.splice(5);
             let flippedPositions = [];
