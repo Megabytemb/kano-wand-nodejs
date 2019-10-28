@@ -7,7 +7,7 @@ const { map, filter, switchMap } = require('rxjs/operators');
 const Conv = require('./conversion');
 
 const width = 800;
-const height = 600
+const height = 600;
 
 const conv = new Conv(width, height);
 var gr = new gestureSpells()
@@ -28,12 +28,26 @@ class Wand {
         this.buttonPressed = false;
         this.timeUp = new Date();
         this.timeDown = new Date();
-        this.resetTimeout = 0.2 // determins a quick press for wand reset (milliseconds)
+        this.resetTimeout = 0.2; // determins a quick press for wand reset (milliseconds)
+
+        this.centerPoints = {
+          x: width / 2,
+          y: height / 2
+        };
+        this.strengthX = 100 ** 2;
+        this.strengthY = 80 ** 2;
+        this.lastPoint = this.centerPoints;
+        this.prevPoint = null;
+        this.wandGesture = [];
+        this.vertical = null;
+
         this.spells = new Subject();
         this.positions = new Subject();
         this.battery = new Subject();
         this.button = new Subject();
         this.move = new Subject();
+        this.whileFlick = new Subject();
+        this.onFlick = new Subject();
     }
 
     static uInt8ToUInt16(byteA, byteB) {
@@ -236,6 +250,86 @@ class Wand {
 
         pos.isButtonPressed = this.buttonPressed;
         this.move.next(pos);
+
+        var flipPos = Wand.flipCord([pos.x, pos.y]);
+        this.processPoint({x: flipPos[0], y: flipPos[1]});
+    }
+
+    processPoint(p) {
+
+      if (this.centerPoints) {
+        const distanceCenterX = p.x - this.centerPoints.x,
+              distanceCenterY = p.y - this.centerPoints.y;
+        if (distanceCenterX > 50) this.whileFlick.next("rightMove");
+        if (distanceCenterX < -50) this.whileFlick.next("leftMove");
+        if (distanceCenterY > 50) this.whileFlick.next("downMove");
+        if (distanceCenterY < -50) this.whileFlick.next("upMove");
+      }
+      const distance = Wand.distance(this.lastPoint.x, p.x, this.lastPoint.y, p.y) / .4;
+
+      this.centerPoints = p;
+      this.lastPoint = p;
+
+      if (this.lastPoint && this.prevPoint ) {
+
+        if (this.lastPoint.x < -200 || this.lastPoint.x > 1000) {
+          this.prevPoint = this.lastPoint;
+          return;
+        }
+
+        const distanceX = this.lastPoint.x - this.prevPoint.x,
+              distanceY = this.lastPoint.y - this.prevPoint.y,
+              speedX = distanceX ** 2,
+              speedY = distanceY ** 2;
+
+        if (this.wandGesture.length >= 2) {
+          const direct = speedY > speedX,
+                dis = direct ? distanceY : distanceX;
+
+          if (direct === this.vertical && distance > 10 && dis ** 2 > this.strengthX) {
+            this.wandGesture.push(dis)
+          }
+          else {
+            this.runGesture()
+          }
+          return;
+        }
+
+        if (speedX > speedY && speedX > this.strengthX) {
+          this.wandGesture.push(distanceX);
+          this.vertical = !1;
+
+          if (distanceX > 0) {
+            this.direction = "right"
+          }
+          else {
+            this.direction = "left"
+          }
+        }
+        else if (speedY > speedX && speedY > this.strengthY) {
+          this.wandGesture.push(distanceY)
+          this.vertical = !0
+
+          if (distanceY > 0) {
+            this.direction = "down"
+          }
+          else {
+            this.direction = "up"
+          }
+        }
+
+      }
+      this.prevPoint = this.lastPoint;
+    }
+
+    runGesture() {
+      this.onFlick.next(this.direction);
+      this.wandGesture = []
+      this.vertical = null
+    }
+
+    static distance(x1, x2, y1, y2) {
+      return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
     }
 
     subscribe_battery(callback) {

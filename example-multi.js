@@ -38,6 +38,14 @@ noble.on('discover', function(peripheral) {
           //console.log("move:", data);
         });
 
+        wand.onFlick.subscribe((data) => {
+          console.log("onFlick", data);
+        });
+
+        wand.whileFlick.subscribe((data) => {
+          //console.log("whileFlick", data);
+        });
+
         wand.button.subscribe((state) => {
           console.log("button:", state);
           if (state === "reset") {
