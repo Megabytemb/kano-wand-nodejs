@@ -4,7 +4,8 @@
   "description": "NodeJS wrapper for interfacing with the Kano Harry Potter BLE wand",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node example-multi.js"
   },
   "repository": {
     "type": "git",
