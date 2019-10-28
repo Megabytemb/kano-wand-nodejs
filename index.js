@@ -14,13 +14,14 @@ var gr = new gestureSpells()
 
 
 class Wand {
-    
+
     constructor(name) {
         this.name = name;
         this.buttonCharacteristic = null;
         this.vibrateCharacteristic = null;
         this.quaternionsCharacteristic = null;
         this.quaternionsResetCharacteristic = null;
+        this.ledCharacteristic = null;
         this.keepAliveCharacteristic = null;
         this.currentSpell = [];
         this.buttonPressed = false;
@@ -62,20 +63,20 @@ class Wand {
             if (compareUUID(characteristic.uuid, kano.IO.VIBRATOR_CHAR)) {
                 console.log("found vibrate");
                 this.vibrateCharacteristic = characteristic;
-                
+
             }
 
+            if (compareUUID(characteristic.uuid, kano.IO.KEEP_ALIVE_CHAR)) {
+                console.log("found keep alive");
+                this.keepAliveCharacteristic = characteristic;
+            }
         }
-
-        if (compareUUID(characteristic.uuid, kano.IO.KEEP_ALIVE_CHAR)) {
-          console.log("found keep alive");
-          this.keepAliveCharacteristic = characteristic;
-        }
+    }
 
     vibrate(pattern) {
-        var vibrate = Buffer.alloc(1);
-        vibrate.writeUInt8(pattern,0)
-        this.vibrateCharacteristic.write(vibrate, true);
+      var vibrate = Buffer.alloc(1);
+      vibrate.writeUInt8(pattern,0)
+      this.vibrateCharacteristic.write(vibrate, true);
     }
 
     keepAlive() {
