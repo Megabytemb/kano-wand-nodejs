@@ -74,7 +74,9 @@ class Wand {
 
     init(peripheral) {
         console.log("init");
-        var serviceUUIDs = [kano.SENSOR.SERVICE, kano.IO.SERVICE, kano.INFO.SERVICE];
+        var serviceUUIDs = [
+          kano.SENSOR.SERVICE.replace(/-/g, "").toLowerCase(), kano.IO.SERVICE.replace(/-/g, "").toLowerCase(), kano.INFO.SERVICE.replace(/-/g, "").toLowerCase()
+        ];
 
         const $this = this;
         return new Promise((resolve, reject) => {
@@ -193,8 +195,8 @@ class Wand {
 }
 
 function compareUUID(val1, val2) {
-    val1 = val1.replaceAll("-", "").toLowerCase();
-    val2 = val2.replaceAll("-", "").toLowerCase();
+    val1 = val1.replace(/-/g, "").toLowerCase();
+    val2 = val2.replace(/-/g, "").toLowerCase();
 
     return val1 === val2;
 };
