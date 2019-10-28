@@ -75,6 +75,11 @@ noble.on('discover', function(peripheral) {
     });
   }
 
+  if (((new Date().getTime() - discoverTime.getTime()) / 1000) > DISCOVER_TIMEOUT_IN_SECONDS) {
+    noble.stopScanning();
+    console.log("Stop Scanning");
+  }
+
 });
 
 process.stdin.on('keypress', (str, key) => {
