@@ -15,7 +15,8 @@ var gr = new gestureSpells()
 
 class Wand {
     
-    constructor() {
+    constructor(name) {
+        this.name = name;
         this.buttonCharacteristic = null;
         this.vibrateCharacteristic = null;
         this.quaternionsCharacteristic = null;
