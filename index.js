@@ -198,7 +198,7 @@ class Wand {
         } else if (seconds < this.resetTimeout) { // not pressed
             this.reset_position();
             this.keepAlive();
-            this.button.next('reset');
+            this.button.next('recentre');
         } else if (this.currentSpell.length > 5) { // not pressed
             this.currentSpell = this.currentSpell.splice(5);
             let flippedPositions = [];

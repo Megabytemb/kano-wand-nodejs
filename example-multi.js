@@ -48,10 +48,8 @@ noble.on('discover', function(peripheral) {
 
         wand.button.subscribe((state) => {
           console.log("button:", state);
-          if (state === "reset") {
-            wand.vibrate(kano.PATTERN.BURST);
-            wand.setLed(true, "#31FFA6");
-          }
+          wand.vibrate(kano.PATTERN.BURST);
+          wand.setLed(true, "#31FFA6");
         });
 
         wand.battery.subscribe((state) => {
