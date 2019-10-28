@@ -33,6 +33,7 @@ class Wand {
         this.positions = new Subject();
         this.battery = new Subject();
         this.button = new Subject();
+        this.move = new Subject();
     }
 
     static uInt8ToUInt16(byteA, byteB) {
@@ -136,7 +137,7 @@ class Wand {
                             service.discoverCharacteristics([], callback);
                         })
                     })
-    
+
                     async.parallel(tasks, callback);
                 },
                 function (characteristics, callback) {
@@ -163,9 +164,9 @@ class Wand {
 
     onButtonUpdate(data, isNotification) {
         const raw = data.readUIntBE(0, 1);
-        
+
         const pressed = raw == 1 ? true : false;
-        
+
         this.buttonPressed = pressed;
 
         // timing
@@ -222,16 +223,18 @@ class Wand {
         let z = data.readInt16LE(6);
 
         const pos = conv.position([x, y, z, w]);
-    
+
         let pitch = `Pitch: ${just.ljust(z.toString(), 16, " ")}`;
         let roll = `Roll: ${just.ljust(w.toString(), 16, " ")}`;
-    
+
         // console.log(`${pitch}${roll}(x, y): (${x.toString()}, ${y.toString()})`)
         // console.log(this.getXY(x, y))
         if (this.buttonPressed) {
             this.currentSpell.push([pos.x, pos.y]);
             this.positions.next([pos.x, pos.y]);
         }
+
+        this.move.next({x: pos.x, y: pos.y, isButtonPressed: this.buttonPressed});
     }
 
     subscribe_battery(callback) {
