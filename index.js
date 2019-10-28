@@ -234,7 +234,8 @@ class Wand {
             this.positions.next([pos.x, pos.y]);
         }
 
-        this.move.next({x: pos.x, y: pos.y, z: pos.z, w: pos.w, isButtonPressed: this.buttonPressed});
+        pos.isButtonPressed = this.buttonPressed;
+        this.move.next(pos);
     }
 
     subscribe_battery(callback) {
