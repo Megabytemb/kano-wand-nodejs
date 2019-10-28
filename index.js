@@ -21,6 +21,7 @@ class Wand {
         this.vibrateCharacteristic = null;
         this.quaternionsCharacteristic = null;
         this.quaternionsResetCharacteristic = null;
+        this.keepAliveCharacteristic = null;
         this.currentSpell = [];
         this.buttonPressed = false;
         this.timeUp = new Date();
@@ -65,7 +66,11 @@ class Wand {
             }
 
         }
-    }
+
+        if (compareUUID(characteristic.uuid, kano.IO.KEEP_ALIVE_CHAR)) {
+          console.log("found keep alive");
+          this.keepAliveCharacteristic = characteristic;
+        }
 
     vibrate(pattern) {
         var vibrate = Buffer.alloc(1);
@@ -73,6 +78,11 @@ class Wand {
         this.vibrateCharacteristic.write(vibrate, true);
     }
 
+    keepAlive() {
+      var alive = Buffer.alloc(1);
+      alive.writeUInt8(1,0);
+      this.keepAliveCharacteristic.write(alive, true);
+    }
     init(peripheral) {
         console.log("init");
         var serviceUUIDs = [
@@ -137,6 +147,7 @@ class Wand {
             this.spell = null;
         } else if (seconds < this.resetTimeout) { // not pressed
             this.reset_position();
+            this.keepAlive();
         } else if (this.currentSpell.length > 5) { // not pressed
             this.currentSpell = this.currentSpell.splice(5);
             let flippedPositions = [];
