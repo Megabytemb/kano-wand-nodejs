@@ -23,6 +23,7 @@ class Wand {
         this.quaternionsResetCharacteristic = null;
         this.ledCharacteristic = null;
         this.keepAliveCharacteristic = null;
+        this.batteryCharacteristic = null;
         this.currentSpell = [];
         this.buttonPressed = false;
         this.timeUp = new Date();
@@ -30,6 +31,7 @@ class Wand {
         this.resetTimeout = 0.2 // determins a quick press for wand reset (milliseconds)
         this.spells = new Subject();
         this.positions = new Subject();
+        this.battery = new Subject();
     }
 
     static uInt8ToUInt16(byteA, byteB) {
@@ -76,6 +78,13 @@ class Wand {
                 console.log("found led");
                 this.ledCharacteristic = characteristic;
             }
+
+            if (compareUUID(characteristic.uuid, kano.IO.BATTERY_CHAR))
+            {
+                console.log("found battery");
+                this.batteryCharacteristic = characteristic;
+            }
+
         }
     }
 
@@ -134,6 +143,7 @@ class Wand {
                 }.bind(this),
                 this.subscribe_position.bind(this),
                 this.subscribe_button.bind(this),
+                this.subscribe_battery.bind(this),
                 this.reset_position.bind(this)
             ], function (err, result) {
                 console.log("Wand ready!");
@@ -218,6 +228,17 @@ class Wand {
             this.currentSpell.push([pos.x, pos.y]);
             this.positions.next([pos.x, pos.y]);
         }
+    }
+
+    subscribe_battery(callback) {
+      console.log("Subscribe to Battery")
+      this.batteryCharacteristic.on('read', this.onBatteryUpdate.bind(this));
+      this.batteryCharacteristic.subscribe(callback);
+    }
+
+    onBatteryUpdate(data, isNotification) {
+      const batt = data.readUIntBE(0, 1);
+      this.battery.next(batt);
     }
 
     reset_position(callback) {
