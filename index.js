@@ -97,19 +97,19 @@ class Wand {
                 function (characteristics, callback) {
                     characteristics = characteristics.flat();
                     characteristics.forEach(this.processCharacteristic, this)
-                    callback(null, true);
+                    callback();
                 }.bind(this),
                 this.subscribe_position.bind(this),
                 this.subscribe_button.bind(this),
-                async.apply(this.reset_position.bind(this))
+                this.reset_position.bind(this)
             ], function (err, result) {
-                console.log("hello!!");
+                console.log("Wand ready!");
                 resolve(true);
             });
         });
     }
 
-    subscribe_button(result, callback) {
+    subscribe_button(callback) {
         console.log("Subscribe to Button")
         this.buttonCharacteristic.on('read', this.onButtonUpdate.bind(this));
         this.buttonCharacteristic.subscribe(callback);
@@ -161,7 +161,7 @@ class Wand {
         return [x, iy];
     }
 
-    subscribe_position(result, callback) {
+    subscribe_position(callback) {
         console.log("Subscribe to Motion")
         this.quaternionsCharacteristic.on('read', this.onMotionUpdate.bind(this));
         this.quaternionsCharacteristic.subscribe(callback);
@@ -186,11 +186,12 @@ class Wand {
         }
     }
 
-    reset_position() {
+    reset_position(callback) {
         console.log("Reset Position");
         var reset = Buffer.alloc(1);
         reset.writeUInt8(1,0)
         this.quaternionsResetCharacteristic.write(reset, true);
+        if(typeof(callback) == typeof(Function)) callback();
     }
 }
 
