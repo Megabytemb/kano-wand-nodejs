@@ -4,7 +4,8 @@
   "description": "NodeJS wrapper for interfacing with the Kano Harry Potter BLE wand",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node example-multi.js"
   },
   "repository": {
     "type": "git",
@@ -21,11 +22,16 @@
   },
   "homepage": "https://github.com/megabytemb/kano-wand-nodejs#readme",
   "dependencies": {
-    "@tensorflow/tfjs": "^0.14.1",
-    "@tensorflow/tfjs-node": "^0.2.1",
+    "@tensorflow/tfjs": "1.2.11",
+    "@tensorflow/tfjs-core": "1.2.11",
+    "@tensorflow/tfjs-node": "1.2.11",
     "async": "^2.6.1",
     "fit-curve": "^0.1.6",
     "rxjs": "^6.3.3",
+    "seedrandom": "^3.0.5",
     "string-just": "0.0.2"
+  },
+  "devDependencies": {
+    "noble-mac": "github:Timeular/noble-mac"
   }
 }
