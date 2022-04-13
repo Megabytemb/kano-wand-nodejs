@@ -25,7 +25,7 @@
     "@tensorflow/tfjs": "1.2.11",
     "@tensorflow/tfjs-core": "1.2.11",
     "@tensorflow/tfjs-node": "1.2.11",
-    "async": "^2.6.1",
+    "async": "^3.2.2",
     "fit-curve": "^0.1.6",
     "rxjs": "^6.3.3",
     "seedrandom": "^3.0.5",
